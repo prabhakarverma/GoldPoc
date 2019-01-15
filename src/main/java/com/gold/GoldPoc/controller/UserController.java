@@ -17,102 +17,67 @@ import java.util.regex.Pattern;
  * @author Prabhakar Verma
  */
 @Controller
-public class UserController
-{
+public class UserController {
 
     private static final String pattern = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{8,20})";
 
     @Autowired
     private UserService userService;
 
-    @GetMapping( value = "/" )
-    public String home()
-    {
-        return "index";
-    }
-
-    @GetMapping( "/register" )
-    public String register()
-    {
-        return "register";
-    }
-
-    @RequestMapping( value = "/register", method = RequestMethod.POST, consumes = { "application/x-www-form-urlencoded" } )
-    public ResponseEntity<Object> userRegister( @ModelAttribute User user, BindingResult result )
-    {
-        LocalDate userdate = LocalDate.parse( user.getDob() ).minusDays( 0 );
-        if( LocalDate.now().compareTo( userdate ) > 0 )
-        {
-            Matcher mtch = Pattern.compile( pattern ).matcher( user.getPassword() );
-            if( mtch.matches() )
-            {
-                userService.createUser( user );
-                return new ResponseEntity<Object>( "User Created: " + user.getName(), HttpStatus.CREATED );
-            }
-            else
-            {
-                userService.createUser( user );
-                return new ResponseEntity<Object>( "Password atleast 8 digit with special symbol,caps,small and numeric ", HttpStatus.BAD_REQUEST );
+    @PostMapping( "/register")
+    public ResponseEntity<Object> userRegister(@RequestBody User user ) {
+        LocalDate userdate = LocalDate.parse(user.getDob()).minusDays(0);
+        if (LocalDate.now().compareTo(userdate) > 0) {
+            Matcher mtch = Pattern.compile(pattern).matcher(user.getPassword());
+            if (mtch.matches()) {
+                userService.createUser(user);
+                return new ResponseEntity<Object>("User Created: " + user.getName(), HttpStatus.CREATED);
+            } else {
+                userService.createUser(user);
+                return new ResponseEntity<Object>("Password atleast 8 digit with special symbol,caps,small and numeric ", HttpStatus.BAD_REQUEST);
             }
 
-        }
-        else
-        {
-            return new ResponseEntity<Object>( "DOB should be less than feuture date: ", HttpStatus.BAD_REQUEST );
+        } else {
+            return new ResponseEntity<Object>("DOB should be less than feuture date: ", HttpStatus.BAD_REQUEST);
         }
     }
 
-    @RequestMapping( value = "/login", method = RequestMethod.POST )
-    public ResponseEntity<Object> userLogin( @RequestBody User user )
-    {
+    @PostMapping( "/login" )
+    public ResponseEntity<Object> userLogin(@RequestBody User user) {
         ResponseEntity<Object> userResponseEntity = null;
-        try
-        {
-            User usr = userService.userLogin( user );
-            if( null != usr )
-            {
-                return new ResponseEntity<Object>( "Welcome to " + usr.getName(), HttpStatus.OK );
-            }
-            else
-            {
-                return new ResponseEntity<Object>( "Invalid user ", HttpStatus.BAD_REQUEST );
+        try {
+            User usr = userService.userLogin(user);
+            if (null != usr) {
+                return new ResponseEntity<Object>("Welcome to " + usr.getName(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<Object>("Invalid user ", HttpStatus.BAD_REQUEST);
             }
 
-        }
-        catch( Exception ex )
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return userResponseEntity;
     }
 
-    @PutMapping( value = "/resetpassword/{newpassword}" )
-    public ResponseEntity<Object> resetPassword( @RequestBody User user, @PathVariable String newpassword )
-    {
-        User response = userService.resetPassword( user, newpassword );
-        if( response == null )
-        {
-            return new ResponseEntity<Object>( "User Name " + user.getName() + " does not exists", HttpStatus.BAD_REQUEST );
-        }
-        else
-        {
-            return new ResponseEntity<Object>( "password successfully reset", HttpStatus.CREATED );
+    @PutMapping( "/resetpassword/{newpassword}" )
+    public ResponseEntity<Object> resetPassword(@RequestBody User user, @PathVariable String newpassword) {
+        User response = userService.resetPassword(user, newpassword);
+        if (response == null) {
+            return new ResponseEntity<Object>("User Name " + user.getName() + " does not exists", HttpStatus.BAD_REQUEST);
+        } else {
+            return new ResponseEntity<Object>("password successfully reset", HttpStatus.CREATED);
         }
     }
 
-    @PostMapping( value = "/forgetPassword" )
-    public ResponseEntity<Object> forgetPassword( @RequestBody User user )
-    {
-        User response = userService.forgotPassword( user );
-        if( null == response )
-        {
-            System.out.println( "User Name " + user.getEmail() + " does not exists" );
-            return new ResponseEntity<Object>( "user email :   " + user.getEmail() + "  does not exists", HttpStatus.BAD_REQUEST );
-        }
-        else
-        {
-            System.out.println( "get User password:: " + response );
-            return new ResponseEntity<Object>( "Password is :  " + response.getPassword(), HttpStatus.OK );
+    @PostMapping( "/forgetPassword")
+    public ResponseEntity<Object> forgetPassword(@RequestBody User user) {
+        User response = userService.forgotPassword(user);
+        if (null == response) {
+            System.out.println("User Name " + user.getEmail() + " does not exists");
+            return new ResponseEntity<Object>("user email :   " + user.getEmail() + "  does not exists", HttpStatus.BAD_REQUEST);
+        } else {
+            System.out.println("get User password:: " + response);
+            return new ResponseEntity<Object>("Password is :  " + response.getPassword(), HttpStatus.OK);
         }
 
     }
