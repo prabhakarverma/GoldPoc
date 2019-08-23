@@ -23,6 +23,10 @@ repositories {
 }
 
 dependencies {
+    //compile fileTree(dir: 'libs', include: '*.jar')
+    implementation group: 'org.modelmapper', name: 'modelmapper', version: '2.0.0'
+    compileOnly('org.projectlombok:lombok:1.18.4')
+    annotationProcessor('org.projectlombok:lombok:1.18.4')
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	runtimeOnly 'mysql:mysql-connector-java'
